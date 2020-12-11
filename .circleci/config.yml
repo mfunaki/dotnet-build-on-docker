@@ -4,7 +4,7 @@ executors:
   dotnet-build-executor:
     parameters:
       version:
-        default: 3.1
+        default: "3.1"
         type: string
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:<< parameters.version >>
