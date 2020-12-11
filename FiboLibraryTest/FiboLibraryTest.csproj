@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\FiboLibrary\FiboLibrary.csproj" />
+    <ProjectReference Include="../FiboLibrary/FiboLibrary.csproj" />
   </ItemGroup>
 
 </Project>
