@@ -8,3 +8,16 @@ executors:
         type: string
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:<< parameters.version >>
+
+jobs:
+  hello:
+    executor: dotnet-build-executor
+    steps:
+      - run:
+          command: echo 'hello world'
+
+workflows:
+  version: 2
+  workflow:
+    jobs:
+      - hello
