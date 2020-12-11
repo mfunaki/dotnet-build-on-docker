@@ -8,16 +8,69 @@ executors:
         type: string
     docker:
       - image: mcr.microsoft.com/dotnet/sdk:<< parameters.version >>
+        auth:
+          username: $DOCKERHUB_USERNAME
+          password: $DOCKERHUB_PASSWORD
+
+commands:
+  release:
+    parameters:
+      target:
+        type: enum
+        enum: ['win10-x64', 'linux-x64', 'osx.10.14-x64']
+    steps:
+      - checkout
+      - run:
+          command: dotnet publish -c Release -r << parameters.target >>
+      - store_artifacts:
+          path: fibo/bin/Release/netcoreapp3.1/<< parameters.target >>/publish
 
 jobs:
-  hello:
+  build:
     executor: dotnet-build-executor
     steps:
+      - checkout
       - run:
-          command: echo 'hello world'
-
+          command: dotnet build
+  test:
+    executor: dotnet-build-executor
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dotnet-packages-v3-{{ checksum "FiboLibraryTest/FiboLibraryTest.csproj" }}
+      - run:
+          command: dotnet test
+  release-win10-x64:
+    executor: dotnet-build-executor
+    steps:
+      - release:
+          target: win10-x64
+  release-linux-x64:
+    executor: dotnet-build-executor
+    steps:
+      - release:
+          target: linux-x64
+  release-osx1014-x64:
+    executor: dotnet-build-executor
+    steps:
+      - release:
+          target: osx.10.14-x64
+  
 workflows:
   version: 2
   workflow:
     jobs:
-      - hello
+      - build
+      - test:
+          requires: 
+            - build
+      - release-win10-x64:
+          requires:
+            - test
+      - release-linux-x64:
+          requires:
+            - test
+      - release-osx1014-x64:
+          requires:
+            - test
